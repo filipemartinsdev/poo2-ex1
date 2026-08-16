@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface IngressoGateway {
     Ingresso saveIngresso(Ingresso ingresso);
 
-    List<Ingresso> findAllIngresso();
+    List<Ingresso> findAllIngressos();
 }

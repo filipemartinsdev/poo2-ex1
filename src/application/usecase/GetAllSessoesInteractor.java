@@ -17,7 +17,7 @@ public class GetAllSessoesInteractor {
     }
 
     public List<SessaoResponse> getAllSessoes(){
-        return sessaoGateway.findAllSessao()
+        return sessaoGateway.findAllSessoes()
                 .stream()
                 .map(sessaoMapper::toResponse)
                 .toList();

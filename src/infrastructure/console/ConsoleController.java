@@ -67,7 +67,9 @@ public class ConsoleController {
                     case VER_INGRESSOS -> verIngressos();
                     case COMPRAR_INGRESSO -> comprarIngresso();
                 }
-            } catch (Throwable throwable){}
+            } catch (Throwable throwable){
+                System.out.println("[Error] "+ throwable.getMessage());
+            }
         }
     }
 

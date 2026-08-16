@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.List;
 
 public class Sessao {
-    private long id;
+    private Long id;
     private final Instant horario;
     private final BigDecimal valor;
     private final Filme filme;
@@ -20,7 +20,7 @@ public class Sessao {
         this.vagas = vagas;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

@@ -11,7 +11,7 @@ public interface SessaoGateway {
 
     Optional<Sessao> findSessaoById(long id);
 
-    List<Sessao> findAllSessaoByFilmeId(long id);
+    List<Sessao> findAllSessoesByFilmeId(long id);
 
-    List<Sessao> findAllSessao();
+    List<Sessao> findAllSessoes();
 }

@@ -1,26 +1,31 @@
 import application.mapper.*;
 import application.usecase.*;
 import infrastructure.console.ConsoleController;
-import infrastructure.persistence.Repository;
+import infrastructure.persistence.InMemoryRepository;
 
 
 public class Main {
     public static void main(String[] args) {
-        var repository = new Repository();
+        var repository = new InMemoryRepository();
+        var usuarioMapper = new UsuarioMapper();
+        var filmeMapper = new FilmeMapper();
+        var salaMapper = new SalaMapper();
+        var sessaoMapper = new SessaoMapper();
+        var ingressoMapper = new IngressoMapper();
 
         new ConsoleController(
-                new GetAllClientesInteractor(repository, new UsuarioMapper()),
-                new CreateClienteInteractor(repository, new UsuarioMapper()),
-                new GetAllFuncionariosInteractor(repository, new UsuarioMapper()),
-                new CreateFuncionarioInteractor(repository, new UsuarioMapper()),
-                new CreateFilmeInteractor(repository, new FilmeMapper()),
-                new GetAllFilmesInteractor(repository, new FilmeMapper()),
-                new GetAllSalasInteractor(repository, new SalaMapper()),
-                new CreateSalaInteractor(repository, new SalaMapper()),
-                new GetAllSessoesInteractor(repository, new SessaoMapper()),
-                new CreateSessaoInteractor(repository, repository, repository, new SessaoMapper()),
-                new GetAllIngressosInteractor(repository, new IngressoMapper()),
-                new ComprarIngressoInteractor(repository, repository, repository, repository, new IngressoMapper())
+                new GetAllClientesInteractor(repository, usuarioMapper),
+                new CreateClienteInteractor(repository, usuarioMapper),
+                new GetAllFuncionariosInteractor(repository, usuarioMapper),
+                new CreateFuncionarioInteractor(repository, usuarioMapper),
+                new CreateFilmeInteractor(repository, filmeMapper),
+                new GetAllFilmesInteractor(repository, filmeMapper),
+                new GetAllSalasInteractor(repository, salaMapper),
+                new CreateSalaInteractor(repository, salaMapper),
+                new GetAllSessoesInteractor(repository, sessaoMapper),
+                new CreateSessaoInteractor(repository, repository, repository, sessaoMapper),
+                new GetAllIngressosInteractor(repository, ingressoMapper),
+                new ComprarIngressoInteractor(repository, repository, repository, repository, ingressoMapper)
         ).run();
     }
 }

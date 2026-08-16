@@ -16,7 +16,7 @@ public class GetAllIngressosInteractor {
     }
 
     public List<IngressoResponse> getAllIngressos(){
-        return ingressoGateway.findAllIngresso()
+        return ingressoGateway.findAllIngressos()
                 .stream()
                 .map(ingressoMapper::toResponse)
                 .toList();

@@ -15,7 +15,7 @@ public class GelAllSessoesByFilmeIdInteractor {
     }
 
     public List<SessaoResponse> getAllSessoesByFilmeId(long id){
-        return sessaoGateway.findAllSessaoByFilmeId(id)
+        return sessaoGateway.findAllSessoesByFilmeId(id)
                 .stream()
                 .map(sessaoMapper::toResponse)
                 .toList();
