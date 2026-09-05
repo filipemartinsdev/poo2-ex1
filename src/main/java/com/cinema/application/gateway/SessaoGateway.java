@@ -1,0 +1,16 @@
+package com.cinema.application.gateway;
+
+import com.cinema.domain.entity.Sessao;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface SessaoGateway {
+    Sessao saveSessao(Sessao sessao);
+
+    Optional<Sessao> findSessaoById(long id);
+
+    List<Sessao> findAllSessoesByFilmeId(long id);
+
+    List<Sessao> findAllSessoes();
+}
