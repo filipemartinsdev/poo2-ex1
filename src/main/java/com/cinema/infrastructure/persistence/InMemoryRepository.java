@@ -99,6 +99,11 @@ public class InMemoryRepository implements
     }
 
     @Override
+    public Optional<Ingresso> findIngressoById(long id) {
+        return Optional.ofNullable(ingressos.get(id));
+    }
+
+    @Override
     public Sala saveSala(Sala sala) {
         if (sala.getNumero() == null)
             sala.setNumero(++lastIdSala);

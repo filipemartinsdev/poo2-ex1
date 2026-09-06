@@ -3,14 +3,14 @@ package com.cinema.infrastructure.ui.model;
 import com.cinema.domain.entity.TipoIngresso;
 
 public class TableIngressoItem {
-    private Integer id;
-    private TipoIngresso tipo;
-    private Integer sessao;
+    private Long id;
+    private String tipo;
+    private Long sessao;
     private Integer assento;
     private String cliente;
     private String vendedor;
 
-    public TableIngressoItem(Integer id, TipoIngresso tipo, Integer sessao, Integer assento, String cliente, String vendedor) {
+    public TableIngressoItem(Long id, String tipo, Long sessao, Integer assento, String cliente, String vendedor) {
         this.id = id;
         this.tipo = tipo;
         this.sessao = sessao;
@@ -19,27 +19,27 @@ public class TableIngressoItem {
         this.vendedor = vendedor;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public TipoIngresso getTipo() {
+    public String getTipo() {
         return tipo;
     }
 
-    public void setTipo(TipoIngresso tipo) {
+    public void setTipo(String tipo) {
         this.tipo = tipo;
     }
 
-    public Integer getSessao() {
+    public Long getSessao() {
         return sessao;
     }
 
-    public void setSessao(Integer sessao) {
+    public void setSessao(Long sessao) {
         this.sessao = sessao;
     }
 

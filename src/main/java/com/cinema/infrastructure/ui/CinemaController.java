@@ -1,11 +1,9 @@
 package com.cinema.infrastructure.ui;
 
+import com.cinema.application.dto.*;
 import com.cinema.application.mapper.*;
 import com.cinema.application.usecase.*;
-import com.cinema.domain.entity.CategoriaSala;
-import com.cinema.domain.entity.ClassificacaoFilme;
-import com.cinema.domain.entity.GeneroFilme;
-import com.cinema.domain.entity.TipoIngresso;
+import com.cinema.domain.entity.*;
 import com.cinema.infrastructure.persistence.InMemoryRepository;
 import com.cinema.infrastructure.ui.model.*;
 import javafx.application.Platform;
@@ -20,6 +18,7 @@ import javafx.util.StringConverter;
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class CinemaController {
     private final InMemoryRepository repository = new InMemoryRepository();
@@ -30,19 +29,25 @@ public class CinemaController {
     private final IngressoMapper ingressoMapper = new IngressoMapper();
 
     private final GetAllClientesInteractor getAllClientesInteractor = new GetAllClientesInteractor(repository, usuarioMapper);
+    private final GetClienteByCpfInteractor getClienteByCpfInteractor = new GetClienteByCpfInteractor(repository, usuarioMapper);
     private final CreateClienteInteractor createClienteInteractor = new CreateClienteInteractor(repository, usuarioMapper);
     private final GetAllFuncionariosInteractor getAllFuncionariosInteractor = new GetAllFuncionariosInteractor(repository, usuarioMapper);
+    private final GetFuncionarioByCpfInteractor getFuncionarioByCpfInteractor = new GetFuncionarioByCpfInteractor(repository, usuarioMapper);
     private final CreateFuncionarioInteractor createFuncionarioInteractor = new CreateFuncionarioInteractor(repository, usuarioMapper);
     private final CreateFilmeInteractor createFilmeInteractor = new CreateFilmeInteractor(repository, filmeMapper);
     private final GetAllFilmesInteractor getAllFilmesInteractor = new GetAllFilmesInteractor(repository, filmeMapper);
+    private final GetFilmeByIdInteractor getFilmeByIdInteractor = new GetFilmeByIdInteractor(repository, filmeMapper);
     private final GetAllSalasInteractor getAllSalasInteractor = new GetAllSalasInteractor(repository, salaMapper);
+    private final GetSalaByNumeroInteractor getSalaByNumeroInteractor = new GetSalaByNumeroInteractor(repository, salaMapper);
     private final CreateSalaInteractor createSalaInteractor = new CreateSalaInteractor(repository, salaMapper);
     private final GetAllSessoesInteractor getAllSessoesInteractor = new GetAllSessoesInteractor(repository, sessaoMapper);
+    private final GetSessaoByIdInteractor getSessaoByIdInteractor = new GetSessaoByIdInteractor(repository, sessaoMapper);
     private final CreateSessaoInteractor createSessaoInteractor = new CreateSessaoInteractor(repository, repository, repository, sessaoMapper);
     private final GetAllIngressosInteractor getAllIngressosInteractor = new GetAllIngressosInteractor(repository, ingressoMapper);
+    private final GetIngressoByIdInteractor getIngressoByIdInteractor = new GetIngressoByIdInteractor(repository, ingressoMapper);
     private final ComprarIngressoInteractor comprarIngressoInteractor = new ComprarIngressoInteractor(repository, repository, repository, repository, ingressoMapper);
 
-    private DateTimeFormatter dataFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private StringConverter<BigDecimal> moneyStringConverter = new StringConverter<BigDecimal>() {
         @Override
@@ -80,11 +85,28 @@ public class CinemaController {
     @FXML
     private Button btnCriarUsuario;
 
-    @FXML
-    private ChoiceBox<TipoIngresso> choiceTipoIngresso;
 
     @FXML
-    private ChoiceBox<String> choiceCargoUsuario;
+    private ChoiceBox<TipoIngresso> choiceComprarIngressoTipo;
+
+    @FXML
+    private TextField inputComprarIngressoCliente;
+
+    @FXML
+    private TextField inputComprarIngressoFuncionario;
+
+    @FXML
+    private TextField inputComprarIngressoSessao;
+
+    @FXML
+    private TextField inputComprarIngressoAssento;
+
+
+    @FXML
+    private ChoiceBox<CargoUsuario> choiceBuscarUsuarioCargo;
+
+    @FXML
+    private ChoiceBox<CargoUsuario> choiceRegistrarUsuarioCargo;
 
     @FXML
     private ChoiceBox<ClassificacaoFilme> choiceCriarFilmeClassificacao;
@@ -96,7 +118,7 @@ public class CinemaController {
     private ChoiceBox<CategoriaSala> choiceCriarSalaCategoria;
 
     @FXML
-    private DatePicker dataCriarSessao;
+    private DatePicker dateCriarSessao;
 
     @FXML
     private TextField inputBuscarSalaNumero;
@@ -105,13 +127,19 @@ public class CinemaController {
     private TextField inputBuscarSessaoId;
 
     @FXML
-    private TextField inputBuscarUsuario;
+    private TextField inputBuscarUsuarioCpf;
 
     @FXML
-    private TextField inputCPFUsuario;
+    private TextField inputRegistrarUsuarioCpf;
+
+    @FXML
+    private TextField inputRegistrarUsuarioNome;
 
     @FXML
     private TextField inputCriarFilmeNome;
+
+    @FXML
+    private TextField inputBuscarIngressoId;
 
     @FXML
     private TextField inputCriarSessaoFilmeId;
@@ -134,20 +162,13 @@ public class CinemaController {
     @FXML
     private TextField inputIngressoSessaoId;
 
-    @FXML
-    private TextField inputNomeUsuario;
+    @FXML TextField inputBuscarFilmeId;
 
     @FXML
     private Spinner<Integer> spinCriarSalaAssentos;
 
     @FXML
-    private Spinner<Integer> spinCriarSessaoDuracao;
-
-    @FXML
-    private CheckBox checkCriarSessaoTodosAssentos;
-
-    @FXML
-    private Spinner<Integer> spinCriarSessaoVagas;
+    private Spinner<Integer> spinCriarFilmeDuracao;
 
     @FXML
     private Spinner<Double> spinCriarSessaoValor;
@@ -223,7 +244,7 @@ public class CinemaController {
     private TableColumn<TableIngressoItem, Integer> colIngressoId;
 
     @FXML
-    private TableColumn<TableIngressoItem, TipoIngresso> colIngressoTipo;
+    private TableColumn<TableIngressoItem, String> colIngressoTipo;
 
     @FXML
     private TableColumn<TableIngressoItem, Integer> colIngressoSessao;
@@ -248,6 +269,9 @@ public class CinemaController {
 
     @FXML
     private TableColumn<TableSessaoItem, String> colSessaoFilme;
+
+    @FXML
+    private TableColumn<TableSessaoItem, LocalDate> colSessaoData;
 
     @FXML
     private TableColumn<TableSessaoItem, Instant> colSessaoHorario;
@@ -301,17 +325,13 @@ public class CinemaController {
     private final ObservableList<TableSalaItem> tableSalaItems = FXCollections.observableArrayList();
 
 
-
-
     @FXML
     void initialize() {
-        Platform.runLater(this::setupChoiceCargoUsuario);
-        Platform.runLater(this::setupChoiceTipoIngresso);
+        Platform.runLater(this::setupChoiceBuscarUsuarioCargo);
+        Platform.runLater(this::setupChoiceRegistrarUsuarioCargo);
 
         Platform.runLater(this::setupDataCriarSessao);
         Platform.runLater(this::setupSpinCriarSessaoValor);
-        Platform.runLater(this::setupSpinCriarSessaoVagas);
-        Platform.runLater(this::setupCheckCriarSessaoTodosAssentos);
 
         Platform.runLater(this::setupSpinCriarSessaoDuracao);
         Platform.runLater(this::setupChoiceCriarFilmeGenero);
@@ -320,6 +340,8 @@ public class CinemaController {
         Platform.runLater(this::setupChoiceCriarSalaCategoria);
         Platform.runLater(this::setupSpinCriarSalaAssentos);
 
+        Platform.runLater(this::setupChoiceComprarIngressoTipo);
+
         Platform.runLater(this::setupTableUsuario);
         Platform.runLater(this::setupTableIngresso);
         Platform.runLater(this::setupTableSessao);
@@ -327,14 +349,45 @@ public class CinemaController {
         Platform.runLater(this::setupTableSala);
     }
 
-    private void setupChoiceCargoUsuario(){
-        choiceCargoUsuario.getItems().add("Cliente");
-        choiceCargoUsuario.getItems().add("Funcionário");
+    private void setupChoiceBuscarUsuarioCargo(){
+        choiceBuscarUsuarioCargo.getItems().addAll(CargoUsuario.values());
+
+        choiceBuscarUsuarioCargo.setConverter(new StringConverter<CargoUsuario>() {
+            @Override
+            public String toString(CargoUsuario object) {
+                return object != null ? object.description : "";
+            }
+
+            @Override
+            public CargoUsuario fromString(String string) {
+                return null;
+            }
+        });
+
+        choiceBuscarUsuarioCargo.setValue(CargoUsuario.CLIENTE);
+    }
+
+    private void setupChoiceRegistrarUsuarioCargo(){
+        choiceRegistrarUsuarioCargo.getItems().addAll(CargoUsuario.values());
+
+        choiceRegistrarUsuarioCargo.setConverter(new StringConverter<CargoUsuario>() {
+            @Override
+            public String toString(CargoUsuario object) {
+                return object != null ? object.description : "";
+            }
+
+            @Override
+            public CargoUsuario fromString(String string) {
+                return null;
+            }
+        });
+
+        choiceRegistrarUsuarioCargo.setValue(CargoUsuario.CLIENTE);
     }
 
 
-    private void setupChoiceTipoIngresso(){
-        choiceTipoIngresso.setConverter(new StringConverter<TipoIngresso>() {
+    private void setupChoiceComprarIngressoTipo(){
+        choiceComprarIngressoTipo.setConverter(new StringConverter<TipoIngresso>() {
             @Override
             public String toString(TipoIngresso object) {
                 return object != null ? object.description : "";
@@ -347,22 +400,24 @@ public class CinemaController {
         });
 
         for (var tipo : TipoIngresso.values())
-            choiceTipoIngresso.getItems().add(tipo);
+            choiceComprarIngressoTipo.getItems().add(tipo);
+
+        choiceComprarIngressoTipo.setValue(TipoIngresso.INTEIRO);
     }
 
 
     private void setupDataCriarSessao(){
-        dataCriarSessao.setConverter(new StringConverter<LocalDate>() {
+        dateCriarSessao.setConverter(new StringConverter<LocalDate>() {
             @Override
             public String toString(LocalDate object) {
-                return object != null ? dataFormatter.format(object) : "";
+                return object != null ? dateFormatter.format(object) : "";
             }
 
             @Override
             public LocalDate fromString(String string) {
                 try {
                     return string != null && !string.isEmpty()
-                            ? LocalDate.parse(string, dataFormatter)
+                            ? LocalDate.parse(string, dateFormatter)
                             : null;
                 } catch (Exception e){
                     return null;
@@ -376,20 +431,9 @@ public class CinemaController {
         spinCriarSessaoValor.setEditable(true);
     }
 
-    private void setupSpinCriarSessaoVagas(){
-        spinCriarSessaoVagas.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 0));
-        spinCriarSessaoVagas.setEditable(true);
-    }
-
-    private void setupCheckCriarSessaoTodosAssentos(){
-        checkCriarSessaoTodosAssentos.setOnAction(event -> {
-            spinCriarSessaoVagas.setDisable(checkCriarSessaoTodosAssentos.isSelected());
-        });
-    }
-
     private void setupSpinCriarSessaoDuracao(){
-        spinCriarSessaoDuracao.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 0));
-        spinCriarSessaoDuracao.setEditable(true);
+        spinCriarFilmeDuracao.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 0));
+        spinCriarFilmeDuracao.setEditable(true);
     }
 
 
@@ -425,6 +469,8 @@ public class CinemaController {
 
         for (var classificacao : ClassificacaoFilme.values())
             choiceCriarFilmeClassificacao.getItems().add(classificacao);
+
+        choiceCriarFilmeClassificacao.setValue(ClassificacaoFilme.LIVRE);
     }
 
 
@@ -443,6 +489,8 @@ public class CinemaController {
 
         for (var categoria : CategoriaSala.values())
             choiceCriarSalaCategoria.getItems().add(categoria);
+
+        choiceCriarSalaCategoria.setValue(CategoriaSala.COMUM);
     }
 
     private void setupSpinCriarSalaAssentos(){
@@ -454,14 +502,9 @@ public class CinemaController {
     private void setupTableUsuario(){
         tableUsuario.setItems(tableUsuarioItems);
 
-        setupColUsuarioId();
+        setupColUsuarioCpf();
         setupColUsuarioNome();
         setupColUsuarioCargo();
-        setupColUsuarioCpf();
-    }
-
-    private void setupColUsuarioId(){
-        colUsuarioId.setCellValueFactory(new PropertyValueFactory<>("id"));
     }
 
     private void setupColUsuarioNome(){
@@ -497,8 +540,8 @@ public class CinemaController {
 
         colIngressoTipo.setCellFactory(column -> new TableCell<>(){
             @Override
-            protected void updateItem(TipoIngresso item, boolean empty){
-                setText(item.description);
+            protected void updateItem(String item, boolean empty){
+                setText(item != null ? item : "");
             }
         });
     }
@@ -525,6 +568,7 @@ public class CinemaController {
 
         setupColSessaoId();
         setupColSessaoFilme();
+        setupColSessaoData();
         setupColSessaoHorario();
         setupColSessaoValor();
         setupColSessaoSala();
@@ -539,16 +583,31 @@ public class CinemaController {
         colSessaoFilme.setCellValueFactory(new PropertyValueFactory<>("filme"));
     }
 
+    private void setupColSessaoData(){
+        colSessaoData.setCellValueFactory(new PropertyValueFactory<>("data"));
+
+        colSessaoData.setCellFactory(column -> new TableCell<>(){
+            @Override
+            protected void updateItem(LocalDate item, boolean empty){
+                setText(item != null ? dateFormatter.format(item) : "");
+            }
+        });
+    }
+
     private void setupColSessaoHorario(){
         colSessaoHorario.setCellValueFactory(new PropertyValueFactory<>("horario"));
 
         colSessaoHorario.setCellFactory(column -> new TableCell<>(){
             @Override
             protected void updateItem(Instant item, boolean empty){
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm")
-                        .withZone(ZoneOffset.UTC);
-
-                setText(formatter.format(item));
+                if (item != null) {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm")
+                            .withZone(ZoneOffset.UTC);
+                    setText(formatter.format(item));
+                }
+                else {
+                    setText("");
+                }
             }
         });
     }
@@ -559,7 +618,7 @@ public class CinemaController {
         colSessaoValor.setCellFactory(column -> new TableCell<>(){
             @Override
             protected void updateItem(BigDecimal item, boolean empty){
-                setText("R$ %.2f".formatted(item.floatValue()));
+                setText(item != null ? "R$ %.2f".formatted(item.floatValue()) : "");
             }
         });
     }
@@ -597,7 +656,7 @@ public class CinemaController {
         colFilmeGenero.setCellFactory(column -> new TableCell<>(){
             @Override
             protected void updateItem(GeneroFilme item, boolean empty){
-                setText(item.description);
+                setText(item != null ? item.description : "");
             }
         });
     }
@@ -608,7 +667,7 @@ public class CinemaController {
         colFilmeClassificacao.setCellFactory(column -> new TableCell<>(){
             @Override
             protected void updateItem(ClassificacaoFilme item, boolean empty){
-                setText(item.description);
+                setText(item != null ? item.description : "");
             }
         });
     }
@@ -636,7 +695,7 @@ public class CinemaController {
         colSalaCategoria.setCellFactory(column -> new TableCell<>(){
             @Override
             protected void updateItem(CategoriaSala item, boolean empty){
-                setText(item.description);
+                setText(item != null ? item.description : "");
             }
         });
     }
@@ -647,52 +706,616 @@ public class CinemaController {
 
 
     @FXML
-    void buscarFilme(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Filme encontrado!").show();
+    void buscarUsuario(ActionEvent event) {
+        String input = inputBuscarUsuarioCpf.getText();
+
+        if (input == null || input.isEmpty())
+            buscarTodosUsuarios();
+        else
+            buscarUsuarioPorCpf(input);
     }
+
+    private void buscarTodosUsuarios(){
+        CargoUsuario cargo = choiceBuscarUsuarioCargo.getValue();
+
+        if (cargo == null) {
+            showErrorAlert("Cargo inválido");
+            return;
+        }
+
+        if (cargo.equals(CargoUsuario.CLIENTE)) {
+            var result = getAllClientesInteractor.getAllClientes();
+
+            tableUsuarioItems.clear();
+            tableUsuarioItems.addAll(
+                    result.stream().map(cliente ->
+                            new TableUsuarioItem(
+                                    cliente.cpf(),
+                                    cliente.nome(),
+                                    CargoUsuario.CLIENTE.description
+                            )
+                    ).toList()
+            );
+        }
+
+        else {
+            var result = getAllFuncionariosInteractor.getAllFuncionarios();
+
+            tableUsuarioItems.clear();
+            tableUsuarioItems.addAll(
+                    result.stream().map(funcionario ->
+                            new TableUsuarioItem(
+                                    funcionario.cpf(),
+                                    funcionario.nome(),
+                                    CargoUsuario.FUNCIONARIO.description
+                            )
+                    ).toList()
+            );
+        }
+    }
+
+    private void buscarUsuarioPorCpf(String cpf){
+        CargoUsuario cargo = choiceBuscarUsuarioCargo.getValue();
+
+        if (cargo == null) {
+            showErrorAlert("Cargo inválido");
+            return;
+        }
+
+        if (cargo.equals(CargoUsuario.CLIENTE)) {
+            tableUsuarioItems.clear();
+
+            Optional<ClienteResponse> result = getClienteByCpfInteractor.getByCpf(cpf);
+
+            if (result.isEmpty()){
+                showErrorAlert("Cliente não encontrado");
+                return;
+            }
+
+            tableUsuarioItems.add(
+                new TableUsuarioItem(
+                        result.get().cpf(),
+                        result.get().nome(),
+                        CargoUsuario.CLIENTE.description
+                )
+            );
+        }
+
+        else {
+            tableUsuarioItems.clear();
+
+            Optional<FuncionarioResponse> result = getFuncionarioByCpfInteractor.getByCpf(cpf);
+
+            if (result.isEmpty()){
+                showErrorAlert("Funcionário não encontrado");
+                return;
+            }
+
+            tableUsuarioItems.add(
+                    new TableUsuarioItem(
+                            result.get().cpf(),
+                            result.get().nome(),
+                            CargoUsuario.FUNCIONARIO.description
+                    )
+            );
+        }
+    }
+
+
+    @FXML
+    void criarUsuario(ActionEvent event) {
+        CargoUsuario cargo = choiceRegistrarUsuarioCargo.getValue();
+
+        if (cargo == null){
+            showErrorAlert("Cargo inválido");
+            return;
+        }
+
+        String cpf = inputRegistrarUsuarioCpf.getText();
+        String nome = inputRegistrarUsuarioNome.getText();
+
+        if (nome == null || nome.isEmpty()){
+            showErrorAlert("Nome inválido");
+            return;
+        }
+
+        if (cpf == null || cpf.isEmpty()){
+            showErrorAlert("CPF inválido");
+            return;
+        }
+
+        if (cargo.equals(CargoUsuario.CLIENTE))
+            criarCliente(cpf, nome);
+
+        else
+            criarFuncionario(cpf, nome);
+    }
+
+    private void criarCliente(String cpf, String nome){
+        createClienteInteractor.createCliente(new CreateClienteRequest(
+                cpf, nome
+        ));
+
+        limparRegistrarUsuarioForms();
+
+        showInfoAlert("Cliente registrado!");
+    }
+
+    private void criarFuncionario(String cpf, String nome){
+        createFuncionarioInteractor.createFuncionario(new CreateFuncionarioRequest(
+                cpf, nome
+        ));
+
+        limparRegistrarUsuarioForms();
+
+        showInfoAlert("Funcionário registrado!");
+    }
+
+    private void limparRegistrarUsuarioForms(){
+        inputRegistrarUsuarioCpf.clear();
+        inputRegistrarUsuarioNome.clear();
+    }
+
 
     @FXML
     void buscarSala(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Sala encontrada!").show();
+        String numeroInput = inputBuscarSalaNumero.getText();
+
+        if (numeroInput == null || numeroInput.isEmpty()){
+            buscarTodasSalas();
+            return;
+        }
+
+        else {
+            long numero;
+
+            try {
+                numero = Long.parseLong(numeroInput);
+            } catch (Exception e){
+                showErrorAlert("Número inválido");
+                return;
+            }
+
+            buscarSalaPorNumero(numero);
+        }
     }
 
+    private void buscarTodasSalas(){
+        tableSalaItems.clear();
+
+        tableSalaItems.addAll(
+                getAllSalasInteractor.getAllSalas().stream()
+                        .map(sala -> new TableSalaItem(
+                                sala.numero(),
+                                CategoriaSala.getById(sala.categoria().id()),
+                                sala.assentos()
+                        ))
+                        .toList()
+        );
+    }
+
+    private void buscarSalaPorNumero(long numero){
+        tableSalaItems.clear();
+
+        Optional<SalaResponse> result = getSalaByNumeroInteractor.getByNumero(numero);
+
+        if (result.isEmpty()){
+            showErrorAlert("Sala não encontrada");
+            return;
+        }
+
+        tableSalaItems.add(
+                new TableSalaItem(
+                        result.get().numero(),
+                        CategoriaSala.getById(result.get().categoria().id()),
+                        result.get().assentos()
+                )
+        );
+    }
+
+
     @FXML
-    void buscarUsuario(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Usuário encontrado!").show();
+    void criarSala(ActionEvent event) {
+        CategoriaSala categoria = choiceCriarSalaCategoria.getValue();
+        Integer assentos = spinCriarSalaAssentos.getValue();
+
+        if (categoria == null){
+            showErrorAlert("Categoria inválida");
+            return;
+        }
+
+        if (assentos == null || assentos <= 0){
+            showErrorAlert("Assentos inválidos");
+            return;
+        }
+
+        createSalaInteractor.createSala(new CreateSalaRequest(
+            categoria.id, assentos
+        ));
+
+        showInfoAlert("Sala criada!");
     }
 
     @FXML
     void buscarIngresso(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Ingresso encontrado!").show();
+        String idInput = inputBuscarIngressoId.getText();
+
+        if (idInput == null || idInput.isEmpty()){
+            buscarTodosIngressos();
+            return;
+        }
+
+        long id;
+
+        try {
+            id = Long.parseLong(idInput);
+        } catch (Exception e){
+            showErrorAlert("ID inválido");
+            return;
+        }
+
+        buscarIngressoPorId(id);
+    }
+
+    private void buscarTodosIngressos(){
+        tableIngressoItems.clear();
+
+        tableIngressoItems.addAll(getAllIngressosInteractor.getAllIngressos().stream()
+                .map(ingresso -> new TableIngressoItem(
+                        ingresso.id(),
+                        ingresso.tipo(),
+                        ingresso.sessaoId(),
+                        ingresso.assento(),
+                        ingresso.cliente(),
+                        ingresso.funcionario()
+                ))
+                .toList()
+        );
+    }
+
+    private void buscarIngressoPorId(long id){
+        tableIngressoItems.clear();
+
+        Optional<IngressoResponse> result = getIngressoByIdInteractor.getById(id);
+
+        if (result.isEmpty()){
+            showErrorAlert("Ingresso não encontrado");
+            return;
+        }
+
+        tableIngressoItems.add(
+                new TableIngressoItem(
+                        result.get().id(),
+                        result.get().tipo(),
+                        result.get().sessaoId(),
+                        result.get().assento(),
+                        result.get().cliente(),
+                        result.get().funcionario()
+                )
+        );
     }
 
     @FXML
     void comprarIngresso(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Ingresso comprado!").show();
+        TipoIngresso tipo = choiceComprarIngressoTipo.getValue();
+        String clienteCpfInput = inputComprarIngressoCliente.getText();
+        String funcionarioCpfInput = inputComprarIngressoFuncionario.getText();
+        String sessaoIdInput = inputComprarIngressoSessao.getText();
+        String assentoInput = inputComprarIngressoAssento.getText();
+
+        if (!isComprarIngressoInputsValid(tipo, clienteCpfInput, funcionarioCpfInput, sessaoIdInput, assentoInput)) {
+            return;
+        }
+
+        long sessao;
+        int assento;
+
+        try {
+            sessao = Long.parseLong(sessaoIdInput);
+        } catch (Exception e){
+            showErrorAlert("Sessão inválida");
+            return;
+        }
+
+        try {
+            assento = Integer.parseInt(assentoInput);
+        } catch (Exception e){
+            showErrorAlert("Assento inválido");
+            return;
+        }
+
+        comprarIngressoInteractor.comprarIngresso(new CreateIngressoRequest(
+                tipo.id, sessao, assento, funcionarioCpfInput, clienteCpfInput
+        ));
+
+        showInfoAlert("Ingresso comprado!");
     }
+
+    private boolean isComprarIngressoInputsValid(
+            TipoIngresso tipo, String clienteCpfInput, String funcionarioCpfInput, String sessaoIdInput, String assentoInput
+    ) {
+        if (tipo == null){
+            showErrorAlert("Tipo inválido");
+            return false;
+        }
+
+        if (clienteCpfInput == null || clienteCpfInput.isEmpty()){
+            showErrorAlert("Cliente inválido");
+            return false;
+        }
+
+        if (funcionarioCpfInput == null || funcionarioCpfInput.isEmpty()){
+            showErrorAlert("Funcionário inválido");
+            return false;
+        }
+
+        if (sessaoIdInput == null || sessaoIdInput.isEmpty()){
+            showErrorAlert("Sessão inválida");
+            return false;
+        }
+
+        if (assentoInput == null || assentoInput.isEmpty()){
+            showErrorAlert("Assento inválido");
+            return false;
+        }
+        return true;
+    }
+
+
+    @FXML
+    void buscarFilme(ActionEvent event) {
+        String idInput = inputBuscarFilmeId.getText();
+
+        if (idInput == null || idInput.isEmpty()){
+            buscarTodosFilmes();
+            return;
+        }
+
+        else {
+            long id;
+
+            try {
+                id = Long.parseLong(idInput);
+            } catch (Exception e){
+                showErrorAlert("ID inválido");
+                return;
+            }
+
+            buscarFilmePorId(id);
+        }
+    }
+
+    private void buscarTodosFilmes(){
+        tableFilmeItems.clear();
+        tableFilmeItems.addAll(
+                getAllFilmesInteractor.getAllFilmes().stream()
+                        .map(filme ->
+                                new TableFilmeItem(
+                                        filme.id(),
+                                        filme.nome(),
+                                        GeneroFilme.getById(filme.genero().id()),
+                                        ClassificacaoFilme.getById(filme.classificacao().id()),
+                                        filme.duracao().toMinutes()
+                                )
+                        )
+                        .toList()
+        );
+    }
+
+    private void buscarFilmePorId(long id){
+        tableFilmeItems.clear();
+
+        Optional<FilmeResponse> result = getFilmeByIdInteractor.getById(id);
+
+        if (result.isEmpty()){
+            showErrorAlert("Filme não encontrado");
+            return;
+        }
+
+        tableFilmeItems.add(
+                new TableFilmeItem(
+                        result.get().id(),
+                        result.get().nome(),
+                        GeneroFilme.getById(result.get().genero().id()),
+                        ClassificacaoFilme.getById(result.get().classificacao().id()),
+                        result.get().duracao().toMinutes()
+                )
+        );
+    }
+
 
     @FXML
     void criarFilme(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Filme criado!").show();
+        String nome = inputCriarFilmeNome.getText();
+        String descricao = "";
+        Integer duracao = spinCriarFilmeDuracao.getValue();
+        GeneroFilme genero = choiceCriarFilmeGenero.getValue();
+        ClassificacaoFilme classificacao = choiceCriarFilmeClassificacao.getValue();
+
+        if (nome == null || nome.isEmpty()){
+            showErrorAlert("Nome inválido");
+            return;
+        }
+
+        if (duracao == null || duracao <= 0){
+            showErrorAlert("Duração inválida");
+            return;
+        }
+
+        if (genero == null){
+            showErrorAlert("Gênero inválido");
+            return;
+        }
+
+        if (classificacao == null){
+            showErrorAlert("Classificação inválida");
+            return;
+        }
+
+        createFilmeInteractor.createFilme(new CreateFilmeRequest(
+                nome, descricao, Duration.ofMinutes(duracao), genero.id, classificacao.id
+        ));
+
+        limparCriarFilmeForms();
+
+        showInfoAlert("Filme criado!");
     }
 
-    @FXML
-    void criarSala(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Sala criada!").show();
+    private void limparCriarFilmeForms() {
+        inputCriarFilmeNome.clear();
+
+        int d = spinCriarFilmeDuracao.getValue();
+        while (d > 0) {
+            spinCriarFilmeDuracao.decrement();
+            d = spinCriarFilmeDuracao.getValue();
+        }
+
+        choiceCriarFilmeClassificacao.setValue(ClassificacaoFilme.LIVRE);
+        choiceCriarFilmeGenero.setValue(null);
     }
 
     @FXML
     void criarSessao(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Sessão criada!").show();
+        String filmeIdInput = inputCriarSessaoFilmeId.getText();
+        LocalDate dataInput = dateCriarSessao.getValue();
+        String horarioInput = inputCriarSessaoHorario.getText();
+        Double valorInput = spinCriarSessaoValor.getValue();
+        String salaIdInput = inputCriarSessaoSalaId.getText();
+
+        long filme;
+        long sala;
+        Instant horario;
+        BigDecimal valor;
+
+        try {
+            filme = Long.parseLong(filmeIdInput);
+        } catch (Exception e){
+            showErrorAlert("ID de filme inválido");
+            return;
+        }
+
+        try {
+            sala = Long.parseLong(salaIdInput);
+        } catch (Exception e){
+            showErrorAlert("ID de sala inválido");
+            return;
+        }
+
+        String horarioStr = dataInput + "T" + horarioInput + ":00Z";
+
+        try {
+            horario = Instant.parse(horarioStr);
+        } catch (Exception e) {
+            showErrorAlert("Data ou Horário inválido");
+            return;
+        }
+
+        if (valorInput <= 0){
+            showErrorAlert("Valor inválido");
+            return;
+        }
+
+        try {
+            valor = BigDecimal.valueOf(valorInput);
+        } catch (Exception e) {
+            showErrorAlert("Valor inválido");
+            return;
+        }
+
+        try {
+            createSessaoInteractor.createSessao(new CreateSessaoRequest(
+                    horario, valor, filme, sala
+            ));
+
+            limparCriarSessaoForms();
+
+            showInfoAlert("Sessão criada!");
+        } catch (Exception e){
+            showErrorAlert(e.getMessage());
+        }
+    }
+
+    private void limparCriarSessaoForms() {
+        inputCriarSessaoFilmeId.clear();
+        dateCriarSessao.setValue(null);
+        inputCriarSessaoHorario.clear();
+
+        while (spinCriarSessaoValor.getValue() > 0){
+            spinCriarSessaoValor.decrement();
+        }
+
+        inputCriarSessaoSalaId.clear();
     }
 
     @FXML
     void buscarSessao(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Sessão encontrada!").show();
+        String idInput = inputBuscarSessaoId.getText();
+
+        if (idInput == null || idInput.isEmpty()){
+            buscarTodasSessoes();
+            return;
+        }
+
+        else {
+            long id;
+
+            try {
+                id = Long.parseLong(idInput);
+            } catch (Exception e) {
+                showErrorAlert("ID inválido");
+                return;
+            }
+
+            buscarSessaoPorId(id);
+        }
     }
 
-    @FXML
-    void criarUsuario(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Usuário criado!").show();
+    private void buscarTodasSessoes(){
+        tableSessaoItems.clear();
+
+        tableSessaoItems.addAll(getAllSessoesInteractor.getAllSessoes().stream()
+                .map(sessao -> new TableSessaoItem(
+                        sessao.id(),
+                        sessao.filme().nome(),
+                        LocalDate.ofInstant(sessao.horario(), ZoneOffset.UTC),
+                        sessao.horario(),
+                        sessao.valor(),
+                        sessao.sala().numero(),
+                        sessao.vagas().size()
+                ))
+                .toList()
+        );
+    }
+
+    private void buscarSessaoPorId(long id){
+        tableSessaoItems.clear();
+
+        Optional<SessaoResponse> result = getSessaoByIdInteractor.getById(id);
+
+        if (result.isEmpty()){
+            showErrorAlert("Sessão não encontrada");
+            return;
+        }
+
+        tableSessaoItems.add(
+                new TableSessaoItem(
+                        result.get().id(),
+                        result.get().filme().nome(),
+                        LocalDate.from(result.get().horario()),
+                        result.get().horario(),
+                        result.get().valor(),
+                        result.get().sala().numero(),
+                        result.get().vagas().size()
+                )
+        );
+    }
+
+
+    private void showErrorAlert(String content){
+        new Alert(Alert.AlertType.ERROR, content).show();
+    }
+
+    private void showInfoAlert(String content){
+        new Alert(Alert.AlertType.INFORMATION, content).show();
     }
 }

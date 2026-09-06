@@ -3,21 +3,21 @@ package com.cinema.infrastructure.ui.model;
 import com.cinema.domain.entity.CategoriaSala;
 
 public class TableSalaItem {
-    private Integer numero;
+    private Long numero;
     private CategoriaSala categoria;
-    private Integer assentos;
+    private Long assentos;
 
-    public TableSalaItem(Integer numero, CategoriaSala categoria, Integer assentos) {
+    public TableSalaItem(Long numero, CategoriaSala categoria, Long assentos) {
         this.numero = numero;
         this.categoria = categoria;
         this.assentos = assentos;
     }
 
-    public Integer getNumero() {
+    public long getNumero() {
         return numero;
     }
 
-    public void setNumero(Integer numero) {
+    public void setNumero(Long numero) {
         this.numero = numero;
     }
 
@@ -29,11 +29,11 @@ public class TableSalaItem {
         this.categoria = categoria;
     }
 
-    public Integer getAssentos() {
+    public Long getAssentos() {
         return assentos;
     }
 
-    public void setAssentos(Integer assentos) {
+    public void setAssentos(Long assentos) {
         this.assentos = assentos;
     }
 }

@@ -4,13 +4,13 @@ import com.cinema.domain.entity.ClassificacaoFilme;
 import com.cinema.domain.entity.GeneroFilme;
 
 public class TableFilmeItem {
-    private Integer id;
+    private Long id;
     private String nome;
     private GeneroFilme genero;
     private ClassificacaoFilme classificacao;
-    private Integer duracao;
+    private Long duracao;
 
-    public TableFilmeItem(Integer id, String nome, GeneroFilme genero, ClassificacaoFilme classificacao, Integer duracao) {
+    public TableFilmeItem(Long id, String nome, GeneroFilme genero, ClassificacaoFilme classificacao, Long duracao) {
         this.id = id;
         this.nome = nome;
         this.genero = genero;
@@ -18,11 +18,11 @@ public class TableFilmeItem {
         this.duracao = duracao;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -50,11 +50,11 @@ public class TableFilmeItem {
         this.classificacao = classificacao;
     }
 
-    public Integer getDuracao() {
+    public Long getDuracao() {
         return duracao;
     }
 
-    public void setDuracao(Integer duracao) {
+    public void setDuracao(Long duracao) {
         this.duracao = duracao;
     }
 }

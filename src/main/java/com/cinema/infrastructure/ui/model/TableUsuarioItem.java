@@ -1,32 +1,14 @@
 package com.cinema.infrastructure.ui.model;
 
 public class TableUsuarioItem {
-    private Integer id;
-    private String nome;
     private String cpf;
+    private String nome;
     private String cargo;
 
-    public TableUsuarioItem(Integer id, String nome, String cpf, String cargo) {
-        this.id = id;
-        this.nome = nome;
+    public TableUsuarioItem(String cpf, String nome, String cargo) {
         this.cpf = cpf;
-        this.cargo = cargo;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
         this.nome = nome;
+        this.cargo = cargo;
     }
 
     public String getCpf() {
@@ -35,6 +17,14 @@ public class TableUsuarioItem {
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public String getCargo() {

@@ -2,29 +2,32 @@ package com.cinema.infrastructure.ui.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 
 public class TableSessaoItem {
-    private Integer id;
+    private Long id;
     private String filme;
+    private LocalDate data;
     private Instant horario;
     private BigDecimal valor;
-    private Integer sala;
+    private Long sala;
     private Integer vagas;
 
-    public TableSessaoItem(Integer id, String filme, Instant horario, BigDecimal valor, Integer sala, Integer vagas) {
+    public TableSessaoItem(Long id, String filme, LocalDate data, Instant horario, BigDecimal valor, Long sala, Integer vagas) {
         this.id = id;
         this.filme = filme;
+        this.data = data;
         this.horario = horario;
         this.valor = valor;
         this.sala = sala;
         this.vagas = vagas;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -52,11 +55,11 @@ public class TableSessaoItem {
         this.valor = valor;
     }
 
-    public Integer getSala() {
+    public Long getSala() {
         return sala;
     }
 
-    public void setSala(Integer sala) {
+    public void setSala(Long sala) {
         this.sala = sala;
     }
 
@@ -66,5 +69,13 @@ public class TableSessaoItem {
 
     public void setVagas(Integer vagas) {
         this.vagas = vagas;
+    }
+
+    public LocalDate getData() {
+        return data;
+    }
+
+    public void setData(LocalDate data) {
+        this.data = data;
     }
 }
