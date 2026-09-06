@@ -601,7 +601,7 @@ public class CinemaController {
             @Override
             protected void updateItem(Instant item, boolean empty){
                 if (item != null) {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm")
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm")
                             .withZone(ZoneOffset.UTC);
                     setText(formatter.format(item));
                 }
