@@ -21,31 +21,64 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class CinemaController {
-    private final InMemoryRepository repository = new InMemoryRepository();
-    private final UsuarioMapper usuarioMapper = new UsuarioMapper();
-    private final FilmeMapper filmeMapper = new FilmeMapper();
-    private final SalaMapper salaMapper = new SalaMapper();
-    private final SessaoMapper sessaoMapper = new SessaoMapper();
-    private final IngressoMapper ingressoMapper = new IngressoMapper();
+    private final GetAllClientesInteractor getAllClientesInteractor;
+    private final GetClienteByCpfInteractor getClienteByCpfInteractor;
+    private final CreateClienteInteractor createClienteInteractor;
+    private final GetAllFuncionariosInteractor getAllFuncionariosInteractor;
+    private final GetFuncionarioByCpfInteractor getFuncionarioByCpfInteractor;
+    private final CreateFuncionarioInteractor createFuncionarioInteractor;
+    private final CreateFilmeInteractor createFilmeInteractor;
+    private final GetAllFilmesInteractor getAllFilmesInteractor;
+    private final GetFilmeByIdInteractor getFilmeByIdInteractor;
+    private final GetAllSalasInteractor getAllSalasInteractor;
+    private final GetSalaByNumeroInteractor getSalaByNumeroInteractor;
+    private final CreateSalaInteractor createSalaInteractor;
+    private final GetAllSessoesInteractor getAllSessoesInteractor;
+    private final GetSessaoByIdInteractor getSessaoByIdInteractor;
+    private final CreateSessaoInteractor createSessaoInteractor;
+    private final GetAllIngressosInteractor getAllIngressosInteractor;
+    private final GetIngressoByIdInteractor getIngressoByIdInteractor;
+    private final ComprarIngressoInteractor comprarIngressoInteractor;
 
-    private final GetAllClientesInteractor getAllClientesInteractor = new GetAllClientesInteractor(repository, usuarioMapper);
-    private final GetClienteByCpfInteractor getClienteByCpfInteractor = new GetClienteByCpfInteractor(repository, usuarioMapper);
-    private final CreateClienteInteractor createClienteInteractor = new CreateClienteInteractor(repository, usuarioMapper);
-    private final GetAllFuncionariosInteractor getAllFuncionariosInteractor = new GetAllFuncionariosInteractor(repository, usuarioMapper);
-    private final GetFuncionarioByCpfInteractor getFuncionarioByCpfInteractor = new GetFuncionarioByCpfInteractor(repository, usuarioMapper);
-    private final CreateFuncionarioInteractor createFuncionarioInteractor = new CreateFuncionarioInteractor(repository, usuarioMapper);
-    private final CreateFilmeInteractor createFilmeInteractor = new CreateFilmeInteractor(repository, filmeMapper);
-    private final GetAllFilmesInteractor getAllFilmesInteractor = new GetAllFilmesInteractor(repository, filmeMapper);
-    private final GetFilmeByIdInteractor getFilmeByIdInteractor = new GetFilmeByIdInteractor(repository, filmeMapper);
-    private final GetAllSalasInteractor getAllSalasInteractor = new GetAllSalasInteractor(repository, salaMapper);
-    private final GetSalaByNumeroInteractor getSalaByNumeroInteractor = new GetSalaByNumeroInteractor(repository, salaMapper);
-    private final CreateSalaInteractor createSalaInteractor = new CreateSalaInteractor(repository, salaMapper);
-    private final GetAllSessoesInteractor getAllSessoesInteractor = new GetAllSessoesInteractor(repository, sessaoMapper);
-    private final GetSessaoByIdInteractor getSessaoByIdInteractor = new GetSessaoByIdInteractor(repository, sessaoMapper);
-    private final CreateSessaoInteractor createSessaoInteractor = new CreateSessaoInteractor(repository, repository, repository, sessaoMapper);
-    private final GetAllIngressosInteractor getAllIngressosInteractor = new GetAllIngressosInteractor(repository, ingressoMapper);
-    private final GetIngressoByIdInteractor getIngressoByIdInteractor = new GetIngressoByIdInteractor(repository, ingressoMapper);
-    private final ComprarIngressoInteractor comprarIngressoInteractor = new ComprarIngressoInteractor(repository, repository, repository, repository, ingressoMapper);
+    public CinemaController(
+            GetAllClientesInteractor getAllClientesInteractor,
+            GetClienteByCpfInteractor getClienteByCpfInteractor,
+            CreateClienteInteractor createClienteInteractor,
+            GetAllFuncionariosInteractor getAllFuncionariosInteractor,
+            GetFuncionarioByCpfInteractor getFuncionarioByCpfInteractor,
+            CreateFuncionarioInteractor createFuncionarioInteractor,
+            CreateFilmeInteractor createFilmeInteractor,
+            GetAllFilmesInteractor getAllFilmesInteractor,
+            GetFilmeByIdInteractor getFilmeByIdInteractor,
+            GetAllSalasInteractor getAllSalasInteractor,
+            GetSalaByNumeroInteractor getSalaByNumeroInteractor,
+            CreateSalaInteractor createSalaInteractor,
+            GetAllSessoesInteractor getAllSessoesInteractor,
+            GetSessaoByIdInteractor getSessaoByIdInteractor,
+            CreateSessaoInteractor createSessaoInteractor,
+            GetAllIngressosInteractor getAllIngressosInteractor,
+            GetIngressoByIdInteractor getIngressoByIdInteractor,
+            ComprarIngressoInteractor comprarIngressoInteractor
+    ) {
+        this.getAllClientesInteractor = getAllClientesInteractor;
+        this.getClienteByCpfInteractor = getClienteByCpfInteractor;
+        this.createClienteInteractor = createClienteInteractor;
+        this.getAllFuncionariosInteractor = getAllFuncionariosInteractor;
+        this.getFuncionarioByCpfInteractor = getFuncionarioByCpfInteractor;
+        this.createFuncionarioInteractor = createFuncionarioInteractor;
+        this.createFilmeInteractor = createFilmeInteractor;
+        this.getAllFilmesInteractor = getAllFilmesInteractor;
+        this.getFilmeByIdInteractor = getFilmeByIdInteractor;
+        this.getAllSalasInteractor = getAllSalasInteractor;
+        this.getSalaByNumeroInteractor = getSalaByNumeroInteractor;
+        this.createSalaInteractor = createSalaInteractor;
+        this.getAllSessoesInteractor = getAllSessoesInteractor;
+        this.getSessaoByIdInteractor = getSessaoByIdInteractor;
+        this.createSessaoInteractor = createSessaoInteractor;
+        this.getAllIngressosInteractor = getAllIngressosInteractor;
+        this.getIngressoByIdInteractor = getIngressoByIdInteractor;
+        this.comprarIngressoInteractor = comprarIngressoInteractor;
+    }
 
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
