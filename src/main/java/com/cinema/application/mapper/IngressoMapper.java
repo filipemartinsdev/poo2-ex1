@@ -8,6 +8,7 @@ public class IngressoMapper {
         return new IngressoResponse(
                 domain.getId(),
                 domain.getTipo().description,
+                domain.getSessao().getId(),
                 domain.getSessao().getHorario(),
                 domain.getSessao().getSala().getNumero(),
                 domain.getAssento().getNumero(),
